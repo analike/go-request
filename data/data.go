@@ -28,7 +28,13 @@ func (d *Data) loadData() {
 	ctx := dd.context
 	switch t := ctx.(type) {
 	case *gin.Context:
-		*dd.data, dd.err = (*t).GetRawData()
+		gData, gErr := (*t).GetRawData()
+		if gErr != nil {
+			dd.err = gErr
+		} else {
+			dd.data = &gData
+		}
+		// *dd.data, dd.err = (*t).GetRawData()
 	}
 	dd.init = true
 	dd.empty = dd.data == nil
@@ -37,6 +43,12 @@ func (d *Data) loadData() {
 
 func (d *Data) IsEmpty() bool {
 	return d.empty
+}
+
+func (d *Data) Clear() {
+	if !d.IsEmpty() {
+		d.data = nil
+	}
 }
 
 func (d *Data) ToJSON(destInterface any) error {
