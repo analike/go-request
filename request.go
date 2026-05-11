@@ -79,7 +79,7 @@ func FromGin(c *gin.Context) *Request {
 		Method:        r.Method,
 		Headers:       &r.Header,
 		RemoteAddress: r.RemoteAddr,
-		Data:          data.FromGin((c)),
+		Data:          data.FromGin(c),
 		Parameters:    c.Param,
 		Queries:       nil,
 		Form:          nil,

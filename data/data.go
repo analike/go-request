@@ -32,7 +32,7 @@ func (d *Data) loadData() error {
 	return d.err
 }
 
-func (d *Data) ToJSON(destInterface *any) error {
+func (d *Data) ToJSON(destInterface any) error {
 	if (d.err != nil) && (d.init == false) {
 	}
 	return json.Unmarshal(*d.data, destInterface)
