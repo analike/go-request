@@ -8,6 +8,7 @@ package data
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,23 +22,21 @@ type Data struct {
 }
 
 func (d *Data) loadData() {
-	dd := *d
-	if dd.init == true {
+	if d.init == true {
 		return
 	}
-	ctx := dd.context
+	ctx := d.context
 	switch t := ctx.(type) {
 	case *gin.Context:
 		gData, gErr := (*t).GetRawData()
 		if gErr != nil {
-			dd.err = gErr
+			d.err = gErr
 		} else {
-			dd.data = &gData
+			d.empty = len(gData) == 0
+			d.data = &gData
 		}
-		// *dd.data, dd.err = (*t).GetRawData()
 	}
-	dd.init = true
-	dd.empty = dd.data == nil
+	d.init = true
 	// return d.err
 }
 
@@ -57,6 +56,9 @@ func (d *Data) ToJSON(destInterface any) error {
 	}
 	if d.err != nil {
 		return d.err
+	}
+	if d.data == nil {
+		return errors.New("no request data")
 	}
 	return json.Unmarshal(*d.data, destInterface)
 }
