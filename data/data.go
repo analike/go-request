@@ -16,24 +16,35 @@ type Data struct {
 	data    *[]byte
 	context any
 	init    bool
+	empty   bool
 	err     error
 }
 
-func (d *Data) loadData() error {
+func (d *Data) loadData() {
 	dd := *d
 	if dd.init == true {
-		return d.err
+		return
 	}
 	ctx := dd.context
 	switch t := ctx.(type) {
 	case *gin.Context:
 		*dd.data, dd.err = (*t).GetRawData()
 	}
-	return d.err
+	dd.init = true
+	dd.empty = dd.data == nil
+	// return d.err
+}
+
+func (d *Data) IsEmpty() bool {
+	return d.empty
 }
 
 func (d *Data) ToJSON(destInterface any) error {
-	if (d.err != nil) && (d.init == false) {
+	if (d.err == nil) && (d.init == false) {
+		d.loadData()
+	}
+	if d.err != nil {
+		return d.err
 	}
 	return json.Unmarshal(*d.data, destInterface)
 }
