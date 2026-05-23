@@ -21,6 +21,12 @@ type Data struct {
 	err     error
 }
 
+func (d *Data) initiate() {
+	if (d.err == nil) && (d.init == false) {
+		d.loadData()
+	}
+}
+
 func (d *Data) loadData() {
 	if d.init == true {
 		return
@@ -51,9 +57,7 @@ func (d *Data) Clear() {
 }
 
 func (d *Data) ToJSON(destInterface any) error {
-	if (d.err == nil) && (d.init == false) {
-		d.loadData()
-	}
+	d.initiate()
 	if d.err != nil {
 		return d.err
 	}
@@ -61,6 +65,19 @@ func (d *Data) ToJSON(destInterface any) error {
 		return errors.New("no request data")
 	}
 	return json.Unmarshal(*d.data, destInterface)
+}
+
+func (d *Data) ToString() string {
+	d.initiate()
+	if d.err != nil && d.data != nil {
+		return string(*d.data)
+	}
+	return ""
+}
+
+func (d *Data) ToBytes() *[]byte {
+	d.initiate()
+	return d.data
 }
 
 func FromGin(c *gin.Context) *Data {
