@@ -56,6 +56,10 @@ func (d *Data) Clear() {
 	}
 }
 
+func (d *Data) Error() error {
+	return d.err
+}
+
 func (d *Data) ToJSON(destInterface any) error {
 	d.initiate()
 	if d.err != nil {
@@ -69,7 +73,7 @@ func (d *Data) ToJSON(destInterface any) error {
 
 func (d *Data) ToString() string {
 	d.initiate()
-	if d.err != nil && d.data != nil {
+	if d.err == nil && d.data != nil {
 		return string(*d.data)
 	}
 	return ""
