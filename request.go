@@ -88,3 +88,26 @@ func FromGin(c *gin.Context) *Request {
 
 	return &req
 }
+
+func FromGoHttp(r *http.Request) *Request {
+	var scheme string
+	if r.Header["X-Forwarded-Proto"][0] == "https" {
+		scheme = "https"
+	} else {
+		scheme = "http"
+	}
+	req := Request{
+		Scheme:        scheme,
+		Uri:           r.RequestURI,
+		Method:        r.Method,
+		Headers:       &r.Header,
+		RemoteAddress: r.RemoteAddr,
+		Data:          data.FromGoHttp(r),
+		Parameters:    r.URL.Query().Get,
+		Queries:       nil,
+		Form:          nil,
+		Client:        nil,
+	}
+
+	return &req
+}

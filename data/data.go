@@ -9,6 +9,8 @@ package data
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,6 +42,14 @@ func (d *Data) loadData() {
 		} else {
 			d.empty = len(gData) == 0
 			d.data = &gData
+		}
+	case *http.Request:
+		rData, rErr := io.ReadAll((*t).Body)
+		if rErr != nil {
+			d.err = rErr
+		} else {
+			d.empty = len(rData) == 0
+			d.data = &rData
 		}
 	}
 	d.init = true
@@ -86,4 +96,8 @@ func (d *Data) ToBytes() *[]byte {
 
 func FromGin(c *gin.Context) *Data {
 	return &Data{context: c}
+}
+
+func FromGoHttp(r *http.Request) *Data {
+	return &Data{context: r}
 }

@@ -1,0 +1,36 @@
+name: deploy.yml
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix-hosts: ${{ steps.set-matrix.outputs.hosts }}
+    steps:
+      - id: set-matrix
+        run: |
+          # Convert "a,b,c" into ["a","b","c"] using jq
+          JSON_ARRAY=$(echo '"${{ secrets.SSH_HOSTS }}"' | jq -c 'split(",")')
+          echo "hosts=$JSON_ARRAY" >> $GITHUB_OUTPUT
+
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      # Prevents other hosts from stopping if one host fails
+      fail-fast: false
+      matrix:
+        host: ${{ fromJson(needs.setup-matrix.outputs.matrix-hosts) }}
+
+    steps:
+      - name: Reload Go Libraries on ${{ matrix.host }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ matrix.host }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            echo "Connected to target host: ${{ matrix.host }}"
+            /usr/local/bin/build-go-mods
