@@ -16,6 +16,7 @@ jobs:
           echo "hosts=$JSON_ARRAY" >> $GITHUB_OUTPUT
 
   deploy:
+    needs: setup-matrix
     runs-on: ubuntu-latest
     strategy:
       # Prevents other hosts from stopping if one host fails
