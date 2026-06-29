@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         # save SSH_HOSTS as json array (eg. ["host1.host", "host2.host"])
-        host: ${{ fromJson(secrets.SSH_HOSTS) }}
+        host: ${{ fromJson(vars.SSH_HOSTS_JSON) }}
 
     steps:
       - name: Reload Go Libraries on ${{ matrix.host }}
