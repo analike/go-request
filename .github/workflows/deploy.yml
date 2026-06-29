@@ -4,35 +4,14 @@ on:
     tags:
       - '*'
 jobs:
-  setup-matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix-hosts: ${{ steps.set-matrix.outputs.hosts }}
-    steps:
-      - id: set-matrix
-        env:
-          SSH_HOSTS: ${{ secrets.SSH_HOSTS }}
-        run: |
-          # Convert "a,b,c" into ["a","b","c"] using jq
-          # split(",") — breaks into array
-          # map(gsub("^\\s+|\\s+$"; "")) — trims leading/trailing whitespace from each entry
-          # map(select(length > 0)) — drops any empty strings (e.g. a trailing comma in the 
-          # JSON_ARRAY=$(jq -cn --arg hosts "$SSH_HOSTS" '$hosts | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0))')
-          JSON_ARRAY=$(python3 -c "
-          import json, os 
-          hosts = [h.strip() for h in os.environ['SSH_HOSTS'].split(',') if h.strip()]
-          print(json.dumps(hosts))
-          ")
-          echo "hosts=$JSON_ARRAY" >> $GITHUB_OUTPUT
-
   deploy:
-    needs: setup-matrix
     runs-on: ubuntu-latest
     strategy:
       # Prevents other hosts from stopping if one host fails
       fail-fast: false
       matrix:
-        host: ${{ fromJson(needs.setup-matrix.outputs.matrix-hosts) }}
+        # save SSH_HOSTS as json array (eg. ["host1.host", "host2.host"])
+        host: ${{ fromJson(secrets.SSH_HOSTS) }}
 
     steps:
       - name: Reload Go Libraries on ${{ matrix.host }}
