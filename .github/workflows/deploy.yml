@@ -1,4 +1,4 @@
-name: deploy.yml
+name: Deploy
 on:
   push:
     tags:
@@ -10,9 +10,11 @@ jobs:
       matrix-hosts: ${{ steps.set-matrix.outputs.hosts }}
     steps:
       - id: set-matrix
+        env:
+          SSH_HOSTS: ${{ secrets.SSH_HOSTS }}
         run: |
           # Convert "a,b,c" into ["a","b","c"] using jq
-          JSON_ARRAY=$(echo '"${{ secrets.SSH_HOSTS }}"' | jq -c 'split(",")')
+          JSON_ARRAY=$(echo "$SSH_HOSTS" | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
           echo "hosts=$JSON_ARRAY" >> $GITHUB_OUTPUT
 
   deploy:
