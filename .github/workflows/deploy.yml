@@ -14,7 +14,10 @@ jobs:
           SSH_HOSTS: ${{ secrets.SSH_HOSTS }}
         run: |
           # Convert "a,b,c" into ["a","b","c"] using jq
-          JSON_ARRAY=$(echo "$SSH_HOSTS" | jq -Rc '[split(",")[] | ltrimstr(" ") | rtrimstr(" ")]')
+          # split(",") — breaks into array
+          # map(gsub("^\\s+|\\s+$"; "")) — trims leading/trailing whitespace from each entry
+          # map(select(length > 0)) — drops any empty strings (e.g. a trailing comma in the 
+          JSON_ARRAY=$(jq -cn --arg hosts "$SSH_HOSTS" '$hosts | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0))')
           echo "hosts=$JSON_ARRAY" >> $GITHUB_OUTPUT
 
   deploy:
