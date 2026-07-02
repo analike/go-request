@@ -67,11 +67,9 @@ func (r *Request) GetIpAddresses(keys ...string) string {
 
 func FromGin(c *gin.Context) *Request {
 	r := *c.Request
-	var scheme string
-	if r.Header["X-Forwarded-Proto"][0] == "https" {
+	scheme := "http"
+	if fwProto := r.Header.Get("X-Forwarded-Proto"); fwProto == "https" {
 		scheme = "https"
-	} else {
-		scheme = "http"
 	}
 	req := Request{
 		Scheme:        scheme,
@@ -90,11 +88,9 @@ func FromGin(c *gin.Context) *Request {
 }
 
 func FromGoHttp(r *http.Request) *Request {
-	var scheme string
-	if r.Header["X-Forwarded-Proto"][0] == "https" {
+	scheme := "http"
+	if fwProto := r.Header.Get("X-Forwarded-Proto"); fwProto == "https" {
 		scheme = "https"
-	} else {
-		scheme = "http"
 	}
 	req := Request{
 		Scheme:        scheme,
