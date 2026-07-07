@@ -55,11 +55,24 @@ func (r *Request) HasBearerToken() bool {
 	return r.GetBearerToken() != ""
 }
 
-func (r *Request) GetIpAddresses(keys ...string) string {
-	for _, key := range keys {
+func (r *Request) GetIpAddresses(trustedHeaders ...string) string {
+	for _, key := range trustedHeaders {
 		val := r.GetHeader(key)
 		if val != "" {
 			return val
+		}
+	}
+	return ""
+}
+
+func (r *Request) GetIpAddress(trustedKeys ...string) string {
+	ip := r.GetIpAddresses(trustedKeys...)
+	if ip != "" {
+		ip = r.RemoteAddress
+		pieces := strings.Split(ip, ",")
+		if len(pieces) > 0 {
+			found := pieces[0]
+			return strings.TrimSpace(found)
 		}
 	}
 	return ""
