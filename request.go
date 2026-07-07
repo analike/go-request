@@ -51,6 +51,10 @@ func (r *Request) GetBearerToken() string {
 	return ""
 }
 
+func (r *Request) GetUserAgent() string {
+	return r.GetHeader("User-Agent")
+}
+
 func (r *Request) HasBearerToken() bool {
 	return r.GetBearerToken() != ""
 }
