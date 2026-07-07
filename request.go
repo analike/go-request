@@ -7,6 +7,7 @@
 package request
 
 import (
+	"net"
 	"net/http"
 	"strings"
 
@@ -71,8 +72,13 @@ func (r *Request) GetIpAddresses(trustedHeaders ...string) string {
 
 func (r *Request) GetIpAddress(trustedKeys ...string) string {
 	ip := r.GetIpAddresses(trustedKeys...)
+	if ip == "" {
+		addr, _, e := net.SplitHostPort(r.RemoteAddress)
+		if e == nil {
+			ip = addr
+		}
+	}
 	if ip != "" {
-		ip = r.RemoteAddress
 		pieces := strings.Split(ip, ",")
 		if len(pieces) > 0 {
 			found := pieces[0]
