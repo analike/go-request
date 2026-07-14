@@ -133,7 +133,7 @@ func FromGoHttp(r *http.Request) *Request {
 }
 
 func parseValues(vals url.Values) *Values {
-	var v Values
+	var v = make(Values)
 	for key, values := range vals {
 		v[key] = values
 	}
