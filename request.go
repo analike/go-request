@@ -9,6 +9,7 @@ package request
 import (
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -102,7 +103,7 @@ func FromGin(c *gin.Context) *Request {
 		RemoteAddress: r.RemoteAddr,
 		Data:          data.FromGin(c),
 		Parameters:    c.Param,
-		Queries:       nil,
+		Queries:       parseValues(c.Request.URL.Query()),
 		Form:          nil,
 		Client:        nil,
 	}
@@ -123,10 +124,18 @@ func FromGoHttp(r *http.Request) *Request {
 		RemoteAddress: r.RemoteAddr,
 		Data:          data.FromGoHttp(r),
 		Parameters:    r.URL.Query().Get,
-		Queries:       nil,
+		Queries:       parseValues(r.URL.Query()),
 		Form:          nil,
 		Client:        nil,
 	}
 
 	return &req
+}
+
+func parseValues(vals url.Values) *Values {
+	var v Values
+	for key, values := range vals {
+		v[key] = values
+	}
+	return &v
 }
